@@ -15,6 +15,7 @@ namespace ConexionSIRE
             client_secret = "SECRET_CLIENT";
             username = "RUCUSUARIO";
             password = "CLAVE_USUARIO";
+
             System.Net.WebRequest req = System.Net.WebRequest.Create("https://api-seguridad.sunat.gob.pe/v1/clientessol/" + idclient + "/oauth2/token/");
             req.ContentType = "application/x-www-form-urlencoded";
             req.Method = "POST";
@@ -41,8 +42,26 @@ namespace ConexionSIRE
                     Console.ReadLine();
                 }
                 Newtonsoft.Json.Linq.JObject ResponseData = Newtonsoft.Json.Linq.JObject.Parse(Result);
-                Console.WriteLine(ResponseData);
-                Console.ReadLine();
+                var access_token = ResponseData["access_token"];
+
+                req = System.Net.WebRequest.Create("https://api-sire.sunat.gob.pe/v1/contribuyente/migeigv/libros/rvierce/padron/web/omisos/140000/periodos");
+                req.Headers["Authorization"] = "Bearer " + access_token;
+                req.ContentType = "application/json";
+                req.Method = "GET";
+                resp = req.GetResponse();
+                if (resp == null)
+                {
+                    Console.WriteLine("Problemas al consultar los periodos tributarios");
+                    Console.ReadLine();
+                }
+                else
+                {
+                    sr = new System.IO.StreamReader(resp.GetResponseStream());
+                    Result = sr.ReadToEnd().Trim();
+                    Newtonsoft.Json.Linq.JArray ResponseArray = Newtonsoft.Json.Linq.JArray.Parse(Result);
+                    Console.WriteLine(ResponseArray);
+                    Console.ReadLine();
+                }
 
 
             }
