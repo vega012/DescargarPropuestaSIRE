@@ -8,3 +8,13 @@ C:\Users\desarrollo\source\repos\ConexionSIRE\obj\Debug\ConexionSIRE.csproj.Core
 C:\Users\desarrollo\source\repos\ConexionSIRE\obj\Debug\ConexionSIRE.csproj.CopyComplete
 C:\Users\desarrollo\source\repos\ConexionSIRE\obj\Debug\ConexionSIRE.exe
 C:\Users\desarrollo\source\repos\ConexionSIRE\obj\Debug\ConexionSIRE.pdb
+C:\Users\HP\Source\Repos\ListarPeriodoSIRE\bin\Debug\ConexionSIRE.exe.config
+C:\Users\HP\Source\Repos\ListarPeriodoSIRE\bin\Debug\ConexionSIRE.exe
+C:\Users\HP\Source\Repos\ListarPeriodoSIRE\bin\Debug\ConexionSIRE.pdb
+C:\Users\HP\Source\Repos\ListarPeriodoSIRE\bin\Debug\Newtonsoft.Json.dll
+C:\Users\HP\Source\Repos\ListarPeriodoSIRE\bin\Debug\Newtonsoft.Json.xml
+C:\Users\HP\Source\Repos\ListarPeriodoSIRE\obj\Debug\ConexionSIRE.csproj.AssemblyReference.cache
+C:\Users\HP\Source\Repos\ListarPeriodoSIRE\obj\Debug\ConexionSIRE.csproj.CoreCompileInputs.cache
+C:\Users\HP\Source\Repos\ListarPeriodoSIRE\obj\Debug\ConexionSIRE.csproj.CopyComplete
+C:\Users\HP\Source\Repos\ListarPeriodoSIRE\obj\Debug\ConexionSIRE.exe
+C:\Users\HP\Source\Repos\ListarPeriodoSIRE\obj\Debug\ConexionSIRE.pdb

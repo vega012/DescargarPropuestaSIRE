@@ -58,13 +58,33 @@ namespace ConexionSIRE
                 {
                     sr = new System.IO.StreamReader(resp.GetResponseStream());
                     Result = sr.ReadToEnd().Trim();
-                    Newtonsoft.Json.Linq.JArray ResponseArray = Newtonsoft.Json.Linq.JArray.Parse(Result);
-                    Console.WriteLine(ResponseArray);
+                    List<Ejercicio> ejercicios = Newtonsoft.Json.JsonConvert.DeserializeObject<List<Ejercicio>>(Result);
+                    // Ahora puedes almacenar los datos en tu base de datos
+                    foreach (var ejercicio in ejercicios)
+                    {
+                        foreach (var periodo in ejercicio.lisPeriodos)
+                        {
+                            Console.WriteLine(periodo.perTributario);                            
+                        }
+                    }
                     Console.ReadLine();
                 }
 
 
             }
         }
+    }
+    public class Ejercicio
+    {
+        public string numEjercicio { get; set; }
+        public string desEstado { get; set; }
+        public List<Periodo> lisPeriodos { get; set; }
+    }
+
+    public class Periodo
+    {
+        public string perTributario { get; set; }
+        public string codEstado { get; set; }
+        public string desEstado { get; set; }
     }
 }
