@@ -11,6 +11,7 @@ namespace ConexionSIRE
         {
             
             string idclient = "", client_secret = "", username = "", password = "";
+            
             idclient = "ID_CLIENTE_SUNAT";
             client_secret = "SECRET_CLIENT";
             username = "RUCUSUARIO";
@@ -43,8 +44,8 @@ namespace ConexionSIRE
                 }
                 Newtonsoft.Json.Linq.JObject ResponseData = Newtonsoft.Json.Linq.JObject.Parse(Result);
                 var access_token = ResponseData["access_token"];
-
-                req = System.Net.WebRequest.Create("https://api-sire.sunat.gob.pe/v1/contribuyente/migeigv/libros/rvierce/padron/web/omisos/140000/periodos");
+                string periodo = "202305";
+                req = System.Net.WebRequest.Create("https://api-sire.sunat.gob.pe/v1/contribuyente/migeigv/libros/rvie/propuesta/web/propuesta/" + periodo + "/exportapropuesta?codTipoArchivo=0");
                 req.Headers["Authorization"] = "Bearer " + access_token;
                 req.ContentType = "application/json";
                 req.Method = "GET";
@@ -58,33 +59,15 @@ namespace ConexionSIRE
                 {
                     sr = new System.IO.StreamReader(resp.GetResponseStream());
                     Result = sr.ReadToEnd().Trim();
-                    List<Ejercicio> ejercicios = Newtonsoft.Json.JsonConvert.DeserializeObject<List<Ejercicio>>(Result);
-                    // Ahora puedes almacenar los datos en tu base de datos
-                    foreach (var ejercicio in ejercicios)
-                    {
-                        foreach (var periodo in ejercicio.lisPeriodos)
-                        {
-                            Console.WriteLine(periodo.perTributario);                            
-                        }
-                    }
+                    var resultado = Newtonsoft.Json.JsonConvert.DeserializeObject<ApiResponse>(Result);
+                    Console.WriteLine(resultado.numTicket);
                     Console.ReadLine();
                 }
-
-
             }
         }
-    }
-    public class Ejercicio
+    }//fin void main
+    class ApiResponse
     {
-        public string numEjercicio { get; set; }
-        public string desEstado { get; set; }
-        public List<Periodo> lisPeriodos { get; set; }
-    }
-
-    public class Periodo
-    {
-        public string perTributario { get; set; }
-        public string codEstado { get; set; }
-        public string desEstado { get; set; }
+        public string numTicket { get; set; }
     }
 }
