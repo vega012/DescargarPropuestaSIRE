@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.IO;
+using System.IO;
+using System.IO.Compression;
 namespace ConexionSIRE
 {
     class Program
@@ -12,7 +15,7 @@ namespace ConexionSIRE
 
             string idclient = "", client_secret = "", username = "", password = "";
 
-            
+
             idclient = "ID_CLIENTE_SUNAT";
             client_secret = "SECRET_CLIENT";
             username = "RUCUSUARIO";
@@ -44,85 +47,64 @@ namespace ConexionSIRE
                 }
                 Newtonsoft.Json.Linq.JObject ResponseData = Newtonsoft.Json.Linq.JObject.Parse(Result);
                 var access_token = ResponseData["access_token"];
-                //consultar estado del ticket
-                string periodo = "202305";
-                string ticket = "20230300000011";
-                req = System.Net.WebRequest.Create("https://api-sire.sunat.gob.pe/v1/contribuyente/migeigv/libros/rvierce/gestionprocesosmasivos/web/masivo/consultaestadotickets?perIni=" + periodo + "&perFin=" + periodo + "&page=1&perPage=20&numTicket=" + ticket);
-                req.Headers["Authorization"] = "Bearer " + access_token;
-                req.ContentType = "application/json";
-                req.Method = "GET";
-                resp = req.GetResponse();
-                if (resp == null)
+                //descargar propuesta SIRE
+                string NomArchivoReporte = "650de50512af3d2822cfe47e__LE2010139236920230900014040001EXP2.zip";
+                string nomArchivoContenido = "LE201013923692023090014040001EXP2.txt";
+
+                System.Net.HttpWebRequest request = (System.Net.HttpWebRequest)System.Net.WebRequest.Create("https://api-sire.sunat.gob.pe/v1/contribuyente/migeigv/libros/rvierce/gestionprocesosmasivos/web/masivo/archivoreporte?nomArchivoReporte=" + NomArchivoReporte + "&codTipoArchivoReporte=01&codLibro=140000");
+                request.Method = "GET";
+                request.Headers["Authorization"] = "Bearer " + access_token;
+                request.ContentType = "application/json";
+                string rutaTemporal = Path.GetTempPath();
+                string rutaCompleta = Path.Combine(rutaTemporal, NomArchivoReporte);
+
+                // Realiza la solicitud y obtén la respuesta
+                using (System.Net.HttpWebResponse response = (System.Net.HttpWebResponse)request.GetResponse())
                 {
-                    Console.WriteLine("No existe informacion del ticket");
+                    if (response.StatusCode == System.Net.HttpStatusCode.OK)
+                    {
+                        // Abre un flujo de lectura desde la respuesta
+                        using (Stream responseStream = response.GetResponseStream())
+                        {
+                            if (responseStream != null)
+                            {
+                                using (MemoryStream memoryStream = new MemoryStream())
+                                {
+                                    responseStream.CopyTo(memoryStream);
+                                    byte[] datosBinarios = memoryStream.ToArray();
+                                    File.WriteAllBytes(rutaCompleta, datosBinarios);
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine("La solicitud al API no fue exitosa.Código de estado: " + response.StatusCode);
+                        Console.ReadLine();
+                    }
+                }
+
+                string rutaCompletaCSV = Path.Combine(rutaTemporal, nomArchivoContenido);
+                string contenidoCSV = "";
+                if (!File.Exists(rutaCompletaCSV))
+                {
+                    ZipFile.ExtractToDirectory(rutaCompleta, rutaTemporal);
+                }
+                if (File.Exists(rutaCompletaCSV))
+                {
+                    // Leer el contenido del archivo CSV
+                    contenidoCSV = File.ReadAllText(rutaCompletaCSV);
+                    File.Delete(rutaCompletaCSV);
+                    Console.WriteLine(contenidoCSV);
                     Console.ReadLine();
                 }
                 else
                 {
-                    sr = new System.IO.StreamReader(resp.GetResponseStream());
-                    Result = sr.ReadToEnd().Trim();
-                    ApiResponseTicket apiResponse = Newtonsoft.Json.JsonConvert.DeserializeObject<ApiResponseTicket>(Result);
-
-
-                    foreach (var registro in apiResponse.registros)
-                    {
-                        Console.WriteLine("estado de envio: " + registro.detalleTicket.desEstadoEnvio);
-                        foreach (var item in registro.archivoReporte)
-                        {
-                            Console.WriteLine("nombre del reporte: " + item.nomArchivoReporte);
-                            Console.WriteLine("nombre del archivo: " + item.nomArchivoContenido);
-                        }
-                    }
+                    Console.WriteLine("El archivo  " + rutaCompletaCSV + " no se encuentra en el zip");
                     Console.ReadLine();
                 }
-
             }
-        }//fin void main
-        public class ApiResponseTicket
-        {
-            public Paginacion paginacion { get; set; }
-            public List<Registro> registros { get; set; }
-        }
-        public class Paginacion
-        {
-            public int page { get; set; }
-            public int perPage { get; set; }
-            public int totalRegistros { get; set; }
-        }
-        public class Registro
-        {
-            public string showReporteDescarga { get; set; }
-            public string perTributario { get; set; }
-            public string numTicket { get; set; }
-            public object fecCargaImportacion { get; set; }
-            public string fecInicioProceso { get; set; }
-            public string codProceso { get; set; }
-            public string desProceso { get; set; }
-            public string codEstadoProceso { get; set; }
-            public string desEstadoProceso { get; set; }
-            public object nomArchivoImportacion { get; set; }
-            public DetalleTicket detalleTicket { get; set; }
-            public List<ArchivoReporte> archivoReporte { get; set; }
-        }
-        public class DetalleTicket
-        {
-            public string numTicket { get; set; }
-            public string fecCargaImportacion { get; set; }
-            public string horaCargaImportacion { get; set; }
-            public string codEstadoEnvio { get; set; }
-            public string desEstadoEnvio { get; set; }
-            public string nomArchivoReporte { get; set; }
-            public int cntFilasvalidada { get; set; }
-            public int cntCPError { get; set; }
-            public int cntCPInformados { get; set; }
-        }
-
-        public class ArchivoReporte
-        {
-            public object codTipoAchivoReporte { get; set; }
-            public string nomArchivoReporte { get; set; }
-            public string nomArchivoContenido { get; set; }
-        }
+        }//fin void main        
     }
 }
 
